@@ -38,6 +38,29 @@ main {
     padding: 0 1rem;
 }
 
+/* 🔹 CONTROLS (PART 2) */
+.controls {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    margin-bottom: 2rem;
+}
+
+.controls button {
+    padding: 8px 14px;
+    margin: 5px;
+    border: none;
+    border-radius: 6px;
+    background-color: #eee;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.controls button.active {
+    background-color: #ff7043;
+    color: white;
+}
+
 /* Recipe Container */
 #recipe-container {
     display: flex;

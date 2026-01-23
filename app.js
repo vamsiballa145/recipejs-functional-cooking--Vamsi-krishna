@@ -1,4 +1,4 @@
-// Recipe data - Foundation for all 4 parts
+// 🔹 Recipe data
 const recipes = [
     {
         id: 1,
@@ -66,36 +66,123 @@ const recipes = [
     },
 ];
 
-// DOM Selection
-const recipeContainer = document.querySelector('#recipe-container');
-console.log(recipeContainer);
+// 🔹 STATE (Part 2)
+let currentFilter = "all";
+let currentSort = "none";
 
-// Function to create HTML for a single recipe card
-const createRecipeCard = (recipe) => {
-    return `
-        <div class="recipe-card" data-id="${recipe.id}">
-            <h3>${recipe.title}</h3>
-            <div class="recipe-meta">
-                <span>⏱️ ${recipe.time} min</span>
-                <span class="difficulty ${recipe.difficulty}">
-                    ${recipe.difficulty}
-                </span>
-            </div>
-            <p>${recipe.description}</p>
+// 🔹 DOM Selection
+const recipeContainer = document.querySelector("#recipe-container");
+const filterButtons = document.querySelectorAll("[data-filter]");
+const sortButtons = document.querySelectorAll("[data-sort]");
+
+// 🔹 Create Recipe Card
+const createRecipeCard = (recipe) => `
+    <div class="recipe-card">
+        <h3>${recipe.title}</h3>
+        <div class="recipe-meta">
+            <span>⏱️ ${recipe.time} min</span>
+            <span class="difficulty ${recipe.difficulty}">
+                ${recipe.difficulty}
+            </span>
         </div>
-    `;
-};
+        <p>${recipe.description}</p>
+    </div>
+`;
 
-console.log(createRecipeCard(recipes[0]));
-
-// Function to render recipes to the DOM
+// 🔹 Render Recipes
 const renderRecipes = (recipesToRender) => {
-    const recipeCardsHTML = recipesToRender
+    recipeContainer.innerHTML = recipesToRender
         .map(createRecipeCard)
-        .join('');
-
-    recipeContainer.innerHTML = recipeCardsHTML;
+        .join("");
 };
 
-// Initialize App
-renderRecipes(recipes);
+// 🔹 PURE FILTER FUNCTIONS
+const filterByDifficulty = (recipes, level) =>
+    recipes.filter(recipe => recipe.difficulty === level);
+
+const filterByTime = (recipes, maxTime) =>
+    recipes.filter(recipe => recipe.time < maxTime);
+
+const applyFilter = (recipes, filterType) => {
+    switch (filterType) {
+        case "easy":
+            return filterByDifficulty(recipes, "easy");
+        case "medium":
+            return filterByDifficulty(recipes, "medium");
+        case "hard":
+            return filterByDifficulty(recipes, "hard");
+        case "quick":
+            return filterByTime(recipes, 30);
+        default:
+            return recipes;
+    }
+};
+
+// 🔹 PURE SORT FUNCTIONS
+const sortByName = (recipes) =>
+    [...recipes].sort((a, b) => a.title.localeCompare(b.title));
+
+const sortByTime = (recipes) =>
+    [...recipes].sort((a, b) => a.time - b.time);
+
+const applySort = (recipes, sortType) => {
+    switch (sortType) {
+        case "name":
+            return sortByName(recipes);
+        case "time":
+            return sortByTime(recipes);
+        default:
+            return recipes;
+    }
+};
+
+// 🔹 UPDATE DISPLAY (FILTER → SORT → RENDER)
+const updateDisplay = () => {
+    let result = recipes;
+    result = applyFilter(result, currentFilter);
+    result = applySort(result, currentSort);
+    renderRecipes(result);
+
+    console.log(
+        `Displaying ${result.length} recipes (Filter: ${currentFilter}, Sort: ${currentSort})`
+    );
+};
+
+// 🔹 ACTIVE BUTTON UI
+const updateActiveButtons = () => {
+    filterButtons.forEach(btn =>
+        btn.classList.toggle("active", btn.dataset.filter === currentFilter)
+    );
+
+    sortButtons.forEach(btn =>
+        btn.classList.toggle("active", btn.dataset.sort === currentSort)
+    );
+};
+
+// 🔹 EVENT HANDLERS
+const handleFilterClick = (e) => {
+    currentFilter = e.target.dataset.filter;
+    updateActiveButtons();
+    updateDisplay();
+};
+
+const handleSortClick = (e) => {
+    currentSort = e.target.dataset.sort;
+    updateActiveButtons();
+    updateDisplay();
+};
+
+// 🔹 EVENT LISTENERS
+const setupEventListeners = () => {
+    filterButtons.forEach(btn =>
+        btn.addEventListener("click", handleFilterClick)
+    );
+
+    sortButtons.forEach(btn =>
+        btn.addEventListener("click", handleSortClick)
+    );
+};
+
+// 🔹 INITIALIZE APP
+setupEventListeners();
+updateDisplay();
